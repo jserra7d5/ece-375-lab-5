@@ -11,10 +11,23 @@
 ;***********************************************************
 ;*	Internal Register Definitions and Constants
 ;***********************************************************
-.def	mpr = r16				; Multipurpose register
+
+;many of these are from lab 1
+.def	mpr = r16				; Multi-Purpose Register
+.def	waitcnt = r17			; Wait Loop Counter
+.def	ilcnt = r18				; Inner Loop Counter
+.def	olcnt = r19				; Outer Loop Counter
+
+.equ	WTime = 100				; Time to wait in wait loop
 
 .equ	WskrR = 0				; Right Whisker Input Bit
 .equ	WskrL = 1				; Left Whisker Input Bit
+
+.equ	EngEnR = 5				; Right Engine Enable Bit
+.equ	EngEnL = 6				; Left Engine Enable Bit
+.equ	EngDirR = 4				; Right Engine Direction Bit
+.equ	EngDirL = 7				; Left Engine Direction Bit
+
 
 ;***********************************************************
 ;*	Start of Code Segment
@@ -34,25 +47,55 @@
 ;		rcall	HandleAC		; Call function to handle interrupt
 ;		reti					; Return from interrupt
 
+.org	$0002					
+		rcall	rWHISKER		; Call function to handle interrupt
+		reti					; Return from interrupt
+
+.org	$0004					
+		rcall	lWHISKER		; Call function to handle interrupt
+		reti					; Return from interrupt
+
 .org	$0056					; End of Interrupt Vectors
 
 ;***********************************************************
 ;*	Program Initialization
 ;***********************************************************
-INIT:							; The initialization routine
-		; Initialize Stack Pointer
+INIT:
+		; Initialize the Stack Pointer 
+		; from lab 1
+		ldi		mpr, low(RAMEND)
+		out		SPL, mpr		; Load SPL with low byte of RAMEND
+		ldi		mpr, high(RAMEND)
+		out		SPH, mpr		; Load SPH with high byte of RAMEND
 
-		; Initialize Port B for output
+	   ; Initialize Port B for output
+		ldi		mpr, $FF		; Set Port B Data Direction Register
+		out		DDRB, mpr		; for output
+		ldi		mpr, $00		; Initialize Port B Data Register
+		out		PORTB, mpr		; so all Port B outputs are low
 
 		; Initialize Port D for input
+		ldi		mpr, $00		; Set Port D Data Direction Register
+		out		DDRD, mpr		; for input
+		ldi		mpr, $FF		; Initialize Port D Data Register
+		out		PORTD, mpr		; so all Port D inputs are Tri-State
+
+		; Initialize TekBot Forward Movement
+		ldi		mpr, MovFwd		; Load Move Forward Command
+		out		PORTB, mpr		; Send command to motors
 
 		; Initialize external interrupts
-			; Set the Interrupt Sense Control to falling edge
+			; Set the Interrupt Sense Control to falling edge 
+		ldi		mpr, 0b00001010
+		sts		EICRA, mpr
 
 		; Configure the External Interrupt Mask
+		ldi		mpr, (1 << WskrL | 1 << WskrR)
+		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
 
 		; Turn on interrupts
 			; NOTE: This must be the last thing to do in the INIT function
+		sei							
 
 ;***********************************************************
 ;*	Main Program
@@ -73,6 +116,48 @@ MAIN:							; The Main program
 ;	left whisker interrupt, one to handle the right whisker
 ;	interrupt, and maybe a wait function
 ;------------------------------------------------------------
+
+;-----------------------------------------------------------
+; Func: rWHISKER
+; Desc: When the right whisker is hit, the bot backs up and turns left
+;-----------------------------------------------------------
+rWHISKER:							; Begin a function with a label
+
+		;save variable by pushing them to the stack
+		push	mpr	;save mpr
+		in		mpr, SREG
+		push	mpr ;save the status register
+
+
+		ret
+
+
+;-----------------------------------------------------------
+; Func: lWHISKER
+; Desc: When the left whisker is hit, the bot goes back and turns right
+;-----------------------------------------------------------
+lWHISKER:							; Begin a function with a label
+
+		;save variable by pushing them to the stack
+		push	mpr	;save mpr
+		in		mpr, SREG
+		push	mpr ;save the status register
+
+
+		ret
+
+;----------------------------------------------------------------
+; Sub:	Wait
+; Desc:	
+;----------------------------------------------------------------
+Wait:
+	push	waitcnt ;save registers
+	push	ilcnt
+	push	olcnt
+
+
+		ret
+
 
 ;-----------------------------------------------------------
 ; Func: Template function header
