@@ -1,13 +1,13 @@
 
-AVRASM ver. 2.2.7  C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm Wed Feb 19 22:58:49 2025
+AVRASM ver. 2.2.7  C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm Thu Feb 20 00:17:33 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32u4def.inc'
 C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32U4def.inc'
-C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(376): Including file 'C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm'
+C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(384): Including file 'C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm'
 C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm(31): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32U4def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32u4def.inc'
 C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32U4def.inc'
-C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(376): Including file 'C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm'
+C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm(384): Including file 'C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm'
 C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm(31): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32U4def.inc'
                                  
                                  ;***********************************************************
@@ -1614,40 +1614,44 @@ C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm
                                  
 00007e e001                      		ldi  mpr, 1             ; Set ISR running flag
 00007f 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
+                                 
+                                 
 000081 e000                      		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
 000082 bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
                                  
-000083 b30c                      		in   mpr, EIFR           ; Read EIFR
-000084 6001                      		ori  mpr, (1 << INTF0)   ; Clear INTF0
-000085 bb0c                      		out  EIFR, mpr           ; Write back
+                                 		
                                  
-000086 9523                      		inc		ilcnt	; increment our right whisker hit counter
-000087 dfe5                      		rcall	UpdateCount
+000083 9523                      		inc		ilcnt	; increment our right whisker hit counter
+000084 dfe8                      		rcall	UpdateCount
                                  
                                  		; Move Backwards for a second
-000088 e000                      		ldi		mpr, MovBck	; Load Move Backward command
-000089 b905                      		out		PORTB, mpr	; Send command to port
-00008a e614                      		ldi		waitcnt, WTime	; Wait for 1 second
-00008b d039                      		rcall	Wait			; Call wait function
+000085 e000                      		ldi		mpr, MovBck	; Load Move Backward command
+000086 b905                      		out		PORTB, mpr	; Send command to port
+000087 e614                      		ldi		waitcnt, WTime	; Wait for 1 second
+000088 d03c                      		rcall	Wait			; Call wait function
                                  
                                  		; Turn left for a second
-00008c e100                      		ldi		mpr, TurnL	; Load Turn Left Command
-00008d b905                      		out		PORTB, mpr	; Send command to port
-00008e e614                      		ldi		waitcnt, WTime	; Wait for 1 second
-00008f d035                      		rcall	Wait			; Call wait function
+000089 e100                      		ldi		mpr, TurnL	; Load Turn Left Command
+00008a b905                      		out		PORTB, mpr	; Send command to port
+00008b e614                      		ldi		waitcnt, WTime	; Wait for 1 second
+00008c d038                      		rcall	Wait			; Call wait function
                                  
                                  		; Move Forward again
-000090 e900                      		ldi		mpr, MovFwd	; Load Move Forward command
-000091 b905                      		out		PORTB, mpr	; Send command to port
+00008d e900                      		ldi		mpr, MovFwd	; Load Move Forward command
+00008e b905                      		out		PORTB, mpr	; Send command to port
                                  
-000092 e00b                      		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
-000093 bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
-000094 9478                      		sei	; enable interrupts
+00008f e00b                      		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
+000090 bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+000091 9478                      		sei	; enable interrupts
                                  				
                                  
-000095 e000                      		ldi  mpr, 0             ; Clear ISR running flag
-000096 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
+000092 e000                      		ldi  mpr, 0             ; Clear ISR running flag
+000093 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
                                  
+                                 
+000095 b30c                      		in   mpr, EIFR           ; Read EIFR
+000096 6001                      		ori  mpr, (1 << INTF0)   ; Clear INTF0
+000097 bb0c                      		out  EIFR, mpr           ; Write back
                                  
                                  		HitRightEnd:
 000098 910f                      		pop		mpr		; Restore program state
@@ -1674,40 +1678,44 @@ C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm
 0000a4 3001                      		cpi  mpr, 1
 0000a5 f0d1                      		breq HitLeftEnd
                                  
+                                 		
+                                 
 0000a6 e001                      		ldi  mpr, 1             ; Set ISR running flag
 0000a7 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
 0000a9 e000                      		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
 0000aa bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
                                  
-0000ab b30c                      		in   mpr, EIFR           ; Read EIFR
-0000ac 6002                      		ori  mpr, (1 << INTF1)   ; Clear INTF1
-0000ad bb0c                      		out  EIFR, mpr           ; Write back
+                                 		
                                  
-0000ae 9533                      		inc		olcnt	; increment our right whisker hit counter
-0000af dfbd                      		rcall	UpdateCount
+0000ab 9533                      		inc		olcnt	; increment our right whisker hit counter
+0000ac dfc0                      		rcall	UpdateCount
                                  
                                  		; Move Backwards for a second
-0000b0 e000                      		ldi		mpr, MovBck	; Load Move Backward command
-0000b1 b905                      		out		PORTB, mpr	; Send command to port
-0000b2 e614                      		ldi		waitcnt, WTime	; Wait for 1 second
-0000b3 d011                      		rcall	Wait			; Call wait function
+0000ad e000                      		ldi		mpr, MovBck	; Load Move Backward command
+0000ae b905                      		out		PORTB, mpr	; Send command to port
+0000af e614                      		ldi		waitcnt, WTime	; Wait for 1 second
+0000b0 d014                      		rcall	Wait			; Call wait function
                                  
                                  		; Turn left for a second
-0000b4 e800                      		ldi		mpr, TurnR	; Load Turn Right Command
-0000b5 b905                      		out		PORTB, mpr	; Send command to port
-0000b6 e614                      		ldi		waitcnt, WTime	; Wait for 1 second
-0000b7 d00d                      		rcall	Wait			; Call wait function
+0000b1 e800                      		ldi		mpr, TurnR	; Load Turn Right Command
+0000b2 b905                      		out		PORTB, mpr	; Send command to port
+0000b3 e614                      		ldi		waitcnt, WTime	; Wait for 1 second
+0000b4 d010                      		rcall	Wait			; Call wait function
                                  
                                  		; Move Forward again
-0000b8 e900                      		ldi		mpr, MovFwd	; Load Move Forward command
-0000b9 b905                      		out		PORTB, mpr	; Send command to port
+0000b5 e900                      		ldi		mpr, MovFwd	; Load Move Forward command
+0000b6 b905                      		out		PORTB, mpr	; Send command to port
                                  
-0000ba e00b                      		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
-0000bb bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
-0000bc 9478                      		sei	; enable interrupts
+0000b7 e00b                      		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
+0000b8 bb0d                      		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+0000b9 9478                      		sei	; enable interrupts
                                  
-0000bd e000                      		ldi  mpr, 0             ; Clear ISR running flag
-0000be 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
+0000ba e000                      		ldi  mpr, 0             ; Clear ISR running flag
+0000bb 9300 0120                 		sts  isr_flag, mpr      ; Store in RAM
+                                 
+0000bd b30c                      		in   mpr, EIFR           ; Read EIFR
+0000be 6002                      		ori  mpr, (1 << INTF1)   ; Clear INTF1
+0000bf bb0c                      		out  EIFR, mpr           ; Write back
                                  
                                  		HitLeftEnd:
 0000c0 910f                      		pop		mpr		; Restore program state

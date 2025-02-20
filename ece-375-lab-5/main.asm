@@ -167,12 +167,11 @@ HitRight:
 		ldi  mpr, 1             ; Set ISR running flag
 		sts  isr_flag, mpr      ; Store in RAM
 
+
 		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
 		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
 
-		in   mpr, EIFR           ; Read EIFR
-		ori  mpr, (1 << INTF0)   ; Clear INTF0
-		out  EIFR, mpr           ; Write back
+		
 
 		inc		ilcnt	; increment our right whisker hit counter
 		rcall	UpdateCount
@@ -202,6 +201,10 @@ HitRight:
 		sts  isr_flag, mpr      ; Store in RAM
 
 
+		in   mpr, EIFR           ; Read EIFR
+		ori  mpr, (1 << INTF0)   ; Clear INTF0
+		out  EIFR, mpr           ; Write back
+
 		HitRightEnd:
 		pop		mpr		; Restore program state
 		out		SREG, mpr	;
@@ -227,14 +230,14 @@ HitLeft:
 		cpi  mpr, 1
 		breq HitLeftEnd
 
+		
+
 		ldi  mpr, 1             ; Set ISR running flag
 		sts  isr_flag, mpr      ; Store in RAM
 		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
 		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
 
-		in   mpr, EIFR           ; Read EIFR
-		ori  mpr, (1 << INTF1)   ; Clear INTF1
-		out  EIFR, mpr           ; Write back
+		
 
 		inc		olcnt	; increment our right whisker hit counter
 		rcall	UpdateCount
@@ -261,6 +264,10 @@ HitLeft:
 
 		ldi  mpr, 0             ; Clear ISR running flag
 		sts  isr_flag, mpr      ; Store in RAM
+
+		in   mpr, EIFR           ; Read EIFR
+		ori  mpr, (1 << INTF1)   ; Clear INTF1
+		out  EIFR, mpr           ; Write back
 
 		HitLeftEnd:
 		pop		mpr		; Restore program state

@@ -26,25 +26,25 @@
  <LABELS>
   <INIT><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>75</LINE></INIT>
   <HitRight><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>156</LINE></HitRight>
-  <HitLeft><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>218</LINE></HitLeft>
-  <CLEAR><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>324</LINE></CLEAR>
+  <HitLeft><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>222</LINE></HitLeft>
+  <CLEAR><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>332</LINE></CLEAR>
   <LCDInit><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>71</LINE></LCDInit>
   <MAIN><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>116</LINE></MAIN>
   <UpdateCount><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>139</LINE></UpdateCount>
   <LCDWrite><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>140</LINE></LCDWrite>
-  <isr_flag><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>362</LINE></isr_flag>
-  <HitRightEnd><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>204</LINE></HitRightEnd>
-  <Wait><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>281</LINE></Wait>
-  <HitLeftEnd><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>264</LINE></HitLeftEnd>
-  <Loop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>286</LINE></Loop>
-  <OLoop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>287</LINE></OLoop>
-  <ILoop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>288</LINE></ILoop>
-  <COPY_LOOP><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>304</LINE></COPY_LOOP>
-  <END_COPY><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>317</LINE></END_COPY>
+  <isr_flag><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>370</LINE></isr_flag>
+  <HitRightEnd><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>208</LINE></HitRightEnd>
+  <Wait><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>289</LINE></Wait>
+  <HitLeftEnd><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>272</LINE></HitLeftEnd>
+  <Loop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>294</LINE></Loop>
+  <OLoop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>295</LINE></OLoop>
+  <ILoop><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>296</LINE></ILoop>
+  <COPY_LOOP><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>312</LINE></COPY_LOOP>
+  <END_COPY><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>325</LINE></END_COPY>
   <LCDClr><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>187</LINE></LCDClr>
-  <STRING_ONE><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>368</LINE></STRING_ONE>
-  <STRING_TWO><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>370</LINE></STRING_TWO>
-  <FUNC><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>349</LINE></FUNC>
+  <STRING_ONE><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>376</LINE></STRING_ONE>
+  <STRING_TWO><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>378</LINE></STRING_TWO>
+  <FUNC><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\main.asm</FILE><LINE>357</LINE></FUNC>
   <LCDDelay><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>501</LINE></LCDDelay>
   <LCD_Internal_WriteCMD><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>485</LINE></LCD_Internal_WriteCMD>
   <LCDBacklightOn><FILE>C:\Users\redst\Desktop\Classes\ECE 375\ece-375-lab-5\ece-375-lab-5\LCDDriver.asm</FILE><LINE>123</LINE></LCDBacklightOn>
