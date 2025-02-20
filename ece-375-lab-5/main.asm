@@ -14,6 +14,7 @@
 
 ;many of these are from lab 1
 .def	mpr = r16				; Multi-Purpose Register
+.def	mpr2 = r23
 .def	waitcnt = r17			; Wait Loop Counter
 .def	ilcnt = r18				; Inner Loop Counter
 .def	olcnt = r19				; Outer Loop Counter
@@ -22,11 +23,18 @@
 
 .equ	WskrR = 0				; Right Whisker Input Bit
 .equ	WskrL = 1				; Left Whisker Input Bit
+.equ	ResetCnt = 3
 
 .equ	EngEnR = 5				; Right Engine Enable Bit
 .equ	EngEnL = 6				; Left Engine Enable Bit
 .equ	EngDirR = 4				; Right Engine Direction Bit
 .equ	EngDirL = 7				; Left Engine Direction Bit
+
+.equ	MovFwd = (1<<EngDirR|1<<EngDirL)	; Move Forward Command
+.equ	MovBck = $00				; Move Backward Command
+.equ	TurnR = (1<<EngDirL)			; Turn Right Command
+.equ	TurnL = (1<<EngDirR)			; Turn Left Command
+.equ	Halt = (1<<EngEnR|1<<EngEnL)		; Halt Command
 
 
 ;***********************************************************
@@ -48,11 +56,15 @@
 ;		reti					; Return from interrupt
 
 .org	$0002					
-		rcall	rWHISKER		; Call function to handle interrupt
+		rcall	HitRight		; Call function to handle interrupt
 		reti					; Return from interrupt
 
 .org	$0004					
-		rcall	lWHISKER		; Call function to handle interrupt
+		rcall	HitLeft		; Call function to handle interrupt
+		reti					; Return from interrupt
+
+.org	$0008					
+		rcall	CLEAR		; Call function to handle interrupt
 		reti					; Return from interrupt
 
 .org	$0056					; End of Interrupt Vectors
@@ -68,6 +80,10 @@ INIT:
 		ldi		mpr, high(RAMEND)
 		out		SPH, mpr		; Load SPH with high byte of RAMEND
 
+		; Initialize LCD Display
+		rcall LCDInit
+		rcall CLEAR ; clears garbage values
+
 	   ; Initialize Port B for output
 		ldi		mpr, $FF		; Set Port B Data Direction Register
 		out		DDRB, mpr		; for output
@@ -80,17 +96,14 @@ INIT:
 		ldi		mpr, $FF		; Initialize Port D Data Register
 		out		PORTD, mpr		; so all Port D inputs are Tri-State
 
-		; Initialize TekBot Forward Movement
-		ldi		mpr, MovFwd		; Load Move Forward Command
-		out		PORTB, mpr		; Send command to motors
 
 		; Initialize external interrupts
 			; Set the Interrupt Sense Control to falling edge 
-		ldi		mpr, 0b00001010
+		ldi		mpr, 0b10001010
 		sts		EICRA, mpr
 
 		; Configure the External Interrupt Mask
-		ldi		mpr, (1 << WskrL | 1 << WskrR)
+		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
 		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
 
 		; Turn on interrupts
@@ -102,7 +115,8 @@ INIT:
 ;***********************************************************
 MAIN:							; The Main program
 
-		; TODO
+		ldi		mpr, MovFwd		; Load Move Forward Command
+		out		PORTB, mpr		; Send command to motors
 
 		rjmp	MAIN			; Create an infinite while loop to signify the
 								; end of the program.
@@ -117,47 +131,179 @@ MAIN:							; The Main program
 ;	interrupt, and maybe a wait function
 ;------------------------------------------------------------
 
-;-----------------------------------------------------------
-; Func: rWHISKER
-; Desc: When the right whisker is hit, the bot backs up and turns left
-;-----------------------------------------------------------
-rWHISKER:							; Begin a function with a label
 
-		;save variable by pushing them to the stack
-		push	mpr	;save mpr
-		in		mpr, SREG
-		push	mpr ;save the status register
+;----------------------------------------------------------------
+; Sub:	UpdateCount
+; Desc:	Updates the whisker hit counters on the LCD
+;----------------------------------------------------------------
+UpdateCount:
+		ldi YL, low(0x0108)
+		ldi YH, high(0x0108)
+		st	Y, ilcnt
+
+		ldi YL, low(0x0118)
+		ldi YH, high(0x0118)
+		st	Y, olcnt
+
+		rcall LCDWrite
+		ret				; Return from subroutine
+
+;----------------------------------------------------------------
+; Sub:	HitRight
+; Desc:	Handles functionality of the TekBot when the right whisker
+;		is triggered.
+;----------------------------------------------------------------
+HitRight:
+		cli	; disable interrupts
+
+		push	mpr			; Save mpr register
+		push	waitcnt			; Save wait register
+		in		mpr, SREG	; Save program state
+		push	mpr			;
+
+		in		mpr, EIFR      ; Read External Interrupt Flag Register
+		ori		mpr, (1 << INTF0)  ; Set bit to clear INTF0
+		out		EIFR, mpr      ; Write back to clear interrupt flag
+
+		inc		ilcnt	; increment our right whisker hit counter
+		rcall	UpdateCount
+
+		; Move Backwards for a second
+		ldi		mpr, MovBck	; Load Move Backward command
+		out		PORTB, mpr	; Send command to port
+		ldi		waitcnt, WTime	; Wait for 1 second
+		rcall	Wait			; Call wait function
+
+		; Turn left for a second
+		ldi		mpr, TurnL	; Load Turn Left Command
+		out		PORTB, mpr	; Send command to port
+		ldi		waitcnt, WTime	; Wait for 1 second
+		rcall	Wait			; Call wait function
+
+		; Move Forward again
+		ldi		mpr, MovFwd	; Load Move Forward command
+		out		PORTB, mpr	; Send command to port
+
+		pop		mpr		; Restore program state
+		out		SREG, mpr	;
+		pop		waitcnt		; Restore wait register
+		pop		mpr		; Restore mpr
+
+		sei	; enable interrupts
+
+		ret				; Return from subroutine
 
 
-		ret
+;----------------------------------------------------------------
+; Sub:	HitLeft
+; Desc:	Handles functionality of the TekBot when the left whisker
+;		is triggered.
+;----------------------------------------------------------------
+HitLeft:
+		cli	; disable interrupts
 
+		push	mpr			; Save mpr register
+		push	waitcnt			; Save wait register
+		in		mpr, SREG	; Save program state
+		push	mpr			;
+		inc		olcnt	; increment our left whisker hit counter
+		rcall UpdateCount
 
-;-----------------------------------------------------------
-; Func: lWHISKER
-; Desc: When the left whisker is hit, the bot goes back and turns right
-;-----------------------------------------------------------
-lWHISKER:							; Begin a function with a label
+		; Move Backwards for a second
+		ldi		mpr, MovBck	; Load Move Backward command
+		out		PORTB, mpr	; Send command to port
+		ldi		waitcnt, WTime	; Wait for 1 second
+		rcall	Wait			; Call wait function
 
-		;save variable by pushing them to the stack
-		push	mpr	;save mpr
-		in		mpr, SREG
-		push	mpr ;save the status register
+		; Turn right for a second
+		ldi		mpr, TurnR	; Load Turn Left Command
+		out		PORTB, mpr	; Send command to port
+		ldi		waitcnt, WTime	; Wait for 1 second
+		rcall	Wait			; Call wait function
 
+		; Move Forward again
+		ldi		mpr, MovFwd	; Load Move Forward command
+		out		PORTB, mpr	; Send command to port
 
-		ret
+		pop		mpr		; Restore program state
+		out		SREG, mpr	;
+		pop		waitcnt		; Restore wait register
+		pop		mpr		; Restore mpr
+
+		sei	; enable interrupts
+
+		ret				; Return from subroutine
 
 ;----------------------------------------------------------------
 ; Sub:	Wait
-; Desc:	
+; Desc:	A wait loop that is 16 + 159975*waitcnt cycles or roughly
+;		waitcnt*10ms.  Just initialize wait for the specific amount
+;		of time in 10ms intervals. Here is the general eqaution
+;		for the number of clock cycles in the wait loop:
+;			(((((3*ilcnt)-1+4)*olcnt)-1+4)*waitcnt)-1+16
 ;----------------------------------------------------------------
 Wait:
-	push	waitcnt ;save registers
-	push	ilcnt
-	push	olcnt
+		push	waitcnt			; Save wait register
+		push	ilcnt			; Save ilcnt register
+		push	olcnt			; Save olcnt register
 
+Loop:	ldi		olcnt, 224		; load olcnt register
+OLoop:	ldi		ilcnt, 237		; load ilcnt register
+ILoop:	dec		ilcnt			; decrement ilcnt
+		brne	ILoop			; Continue Inner Loop
+		dec		olcnt		; decrement olcnt
+		brne	OLoop			; Continue Outer Loop
+		dec		waitcnt		; Decrement wait
+		brne	Loop			; Continue Wait loop
 
+		pop		olcnt		; Restore olcnt register
+		pop		ilcnt		; Restore ilcnt register
+		pop		waitcnt		; Restore wait register
+		ret				; Return from subroutine
+
+;-----------------------------------------------------------
+; Func: COPY_LOOP
+; Desc: Copies from program memory to the memory pointed to by Y.
+;-----------------------------------------------------------
+COPY_LOOP:
+		lpm ; loads the byte pointed to in Z register into r0
+		tst r0 ; sets the flag if the byte in r0 is equal to 0 or negative
+		breq END_COPY ; checks the flag, if set, then end copy
+
+		st Y+, r0 ; stores r0 in y, then increment y
+		adiw ZL, 1 ; increments ZL pointer
+		RJMP COPY_LOOP ; repeat until 0
+
+;-----------------------------------------------------------
+; Func: END_COPY
+; Desc: COPY_LOOP helper function
+;-----------------------------------------------------------
+END_COPY:							; Begin a function with a label
+		ret						; End a function with RET
+
+;-----------------------------------------------------------
+; Func: CLEAR
+; Desc: Clears the screen, then copies back over our strings
+;-----------------------------------------------------------
+CLEAR:
+		rcall LCDClr ; clear our LCD to get rid of any stray characters
+		ldi ZL, low(STRING_ONE * 2) ; load the first 8 bits of our string_one ptr into ZL (r30)
+		ldi ZH, high(STRING_ONE * 2) ; load the last 8 bits of our string_one ptr into ZH (r31)
+
+		ldi YL, low(0x0100) ; load the first 8 bits of our SRAM upper 16 character ptr into YL (r28)
+		ldi YH, high(0x0100) ; load the last 8 bits of our SRAM upper 16 character ptr into YL (r29)
+		rcall COPY_LOOP ; call copy subroutine
+
+		ldi ZL, low(STRING_TWO * 2) ; load the first 8 bits of our string_two ptr into ZL (r30)
+		ldi ZH, high(STRING_TWO * 2) ; load the last 8 bits of our string_two ptr into ZH (r31)
+
+		ldi YL, low(0x0110) ; load the first 8 bits of our SRAM lower 16 character ptr into YL (r28)
+		ldi YH, high(0x0110) ; load the last 8 bits of our SRAM lower 16 character ptr into YL (r29)
+		rcall COPY_LOOP ; call copy subroutine
+		ldi	ilcnt, 48	; 48 is zero in ASCII
+		ldi olcnt, 48	; 48 is zero in ASCII
+		rcall LCDWrite
 		ret
-
 
 ;-----------------------------------------------------------
 ; Func: Template function header
@@ -178,9 +324,12 @@ FUNC:							; Begin a function with a label
 ;*	Stored Program Data
 ;***********************************************************
 
-; Enter any stored data you might need here
+STRING_ONE:
+.DB	"R Hits: 0", 0 ; Declaring data in ProgMem
+STRING_TWO:
+.DB "L Hits: 0", 0
 
 ;***********************************************************
 ;*	Additional Program Includes
 ;***********************************************************
-; There are no additional file includes for this program
+.include "LCDDriver.asm"		; Include the LCD Driver
