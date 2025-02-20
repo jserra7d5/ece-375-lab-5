@@ -154,16 +154,25 @@ UpdateCount:
 ;		is triggered.
 ;----------------------------------------------------------------
 HitRight:
-		cli	; disable interrupts
-
+		cli
 		push	mpr			; Save mpr register
 		push	waitcnt			; Save wait register
 		in		mpr, SREG	; Save program state
 		push	mpr			;
 
-		in		mpr, EIFR      ; Read External Interrupt Flag Register
-		ori		mpr, (1 << INTF0)  ; Set bit to clear INTF0
-		out		EIFR, mpr      ; Write back to clear interrupt flag
+		lds  mpr, isr_flag      ; Load ISR flag from SRAM
+		cpi  mpr, 1
+		breq HitRightEnd
+
+		ldi  mpr, 1             ; Set ISR running flag
+		sts  isr_flag, mpr      ; Store in RAM
+
+		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
+		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+
+		in   mpr, EIFR           ; Read EIFR
+		ori  mpr, (1 << INTF0)   ; Clear INTF0
+		out  EIFR, mpr           ; Write back
 
 		inc		ilcnt	; increment our right whisker hit counter
 		rcall	UpdateCount
@@ -184,12 +193,20 @@ HitRight:
 		ldi		mpr, MovFwd	; Load Move Forward command
 		out		PORTB, mpr	; Send command to port
 
+		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
+		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+		sei	; enable interrupts
+				
+
+		ldi  mpr, 0             ; Clear ISR running flag
+		sts  isr_flag, mpr      ; Store in RAM
+
+
+		HitRightEnd:
 		pop		mpr		; Restore program state
 		out		SREG, mpr	;
 		pop		waitcnt		; Restore wait register
 		pop		mpr		; Restore mpr
-
-		sei	; enable interrupts
 
 		ret				; Return from subroutine
 
@@ -200,14 +217,27 @@ HitRight:
 ;		is triggered.
 ;----------------------------------------------------------------
 HitLeft:
-		cli	; disable interrupts
-
+		cli
 		push	mpr			; Save mpr register
 		push	waitcnt			; Save wait register
 		in		mpr, SREG	; Save program state
 		push	mpr			;
-		inc		olcnt	; increment our left whisker hit counter
-		rcall UpdateCount
+
+		lds  mpr, isr_flag      ; Load ISR flag from SRAM
+		cpi  mpr, 1
+		breq HitLeftEnd
+
+		ldi  mpr, 1             ; Set ISR running flag
+		sts  isr_flag, mpr      ; Store in RAM
+		ldi		mpr, (0 << WskrL | 0 << WskrR | 0 << ResetCnt)
+		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+
+		in   mpr, EIFR           ; Read EIFR
+		ori  mpr, (1 << INTF1)   ; Clear INTF1
+		out  EIFR, mpr           ; Write back
+
+		inc		olcnt	; increment our right whisker hit counter
+		rcall	UpdateCount
 
 		; Move Backwards for a second
 		ldi		mpr, MovBck	; Load Move Backward command
@@ -215,8 +245,8 @@ HitLeft:
 		ldi		waitcnt, WTime	; Wait for 1 second
 		rcall	Wait			; Call wait function
 
-		; Turn right for a second
-		ldi		mpr, TurnR	; Load Turn Left Command
+		; Turn left for a second
+		ldi		mpr, TurnR	; Load Turn Right Command
 		out		PORTB, mpr	; Send command to port
 		ldi		waitcnt, WTime	; Wait for 1 second
 		rcall	Wait			; Call wait function
@@ -225,13 +255,20 @@ HitLeft:
 		ldi		mpr, MovFwd	; Load Move Forward command
 		out		PORTB, mpr	; Send command to port
 
+		ldi		mpr, (1 << WskrL | 1 << WskrR | 1 << ResetCnt)
+		out		EIMSK, mpr ;enable port 0 and 1 for interrupts
+		sei	; enable interrupts
+
+		ldi  mpr, 0             ; Clear ISR running flag
+		sts  isr_flag, mpr      ; Store in RAM
+
+		HitLeftEnd:
 		pop		mpr		; Restore program state
 		out		SREG, mpr	;
 		pop		waitcnt		; Restore wait register
 		pop		mpr		; Restore mpr
 
-		sei	; enable interrupts
-
+		
 		ret				; Return from subroutine
 
 ;----------------------------------------------------------------
@@ -320,6 +357,11 @@ FUNC:							; Begin a function with a label
 
 		ret						; End a function with RET
 
+
+.dseg                  ; Switch to data segment (SRAM)
+.org 0x0120
+isr_flag: .byte 1      ; Allocate 1 byte for the flag
+.cseg                  ; Switch back to code segment
 ;***********************************************************
 ;*	Stored Program Data
 ;***********************************************************
