@@ -138,7 +138,17 @@ LCDBacklightOff:
 ;*		16 chars on the top line and 16 chars on the bottom line.
 ;*****************************************************************
 LCDWrite:
+	mov	r16, r18
+	subi	r16, 48
+	ldi XL, low(0x0108)
+	ldi XH, high(0x0108)
+	rcall Bin2ASCII
 	rcall	LCDWrLn1
+	mov	r16, r19
+	subi	r16, 48
+	ldi XL, low(0x0118)
+	ldi XH, high(0x0118)
+	rcall Bin2ASCII
 	rcall	LCDWrLn2
 	ret
 
